@@ -3861,14 +3861,14 @@ private:
 
         using namespace jtx;
         Env env{*this, features};
-        Account const bogie{"bogie", KeyType::secp256k1};
+        Account const bogie{"bogie", KeyType::dilithium};
         Account const alice{"alice", KeyType::secp256k1};
         Account const becky{"becky", KeyType::ed25519};
         Account const zelda{"zelda", KeyType::secp256k1};
         fund(env, gw, {alice, becky, zelda}, XRP(20'000), {USD(20'000)});
 
         // alice uses a regular key with the master disabled.
-        Account const alie{"alie", KeyType::secp256k1};
+        Account const alie{"alie", KeyType::dilithium};
         env(regkey(alice, alie));
         env(fset(alice, asfDisableMaster), sig(alice));
 

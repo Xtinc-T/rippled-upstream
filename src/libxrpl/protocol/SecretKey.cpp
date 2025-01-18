@@ -433,15 +433,21 @@ SecretKey randomEd25519SecretKey() {
 }
 
 // Function to generate a Dilithium secret key
-SecretKey randomDilithiumSecretKey() {
+SecretKey randomDilithiumSecretKey(Seed const& seed) {
     std::cout << "randomDilithiumSecretKey() called" << std::endl;
     uint8_t pk[CRYPTO_PUBLICKEYBYTES];
     uint8_t sk[CRYPTO_SECRETKEYBYTES];
-    crypto_sign_keypair(pk, sk);
+
+    if (crypto_keypair_seed(pk, sk, seed.data()) != 0)
+    {
+        throw std::runtime_error("randomDilithiumSecretKey(): Key generation failed");
+    }
         
     // std::cout << "Secret Key: " << toHexString(sk, CRYPTO_SECRETKEYBYTES) << std::endl;
     std::cout << "Length of Secret Key: (dilithium) " << CRYPTO_SECRETKEYBYTES << " bytes" << std::endl;
-    return SecretKey(Slice{sk, CRYPTO_SECRETKEYBYTES});
+    secure_erase(pk, CRYPTO_PUBLICKEYBYTES);
+
+    return SecretKey(Slice{sk, CRYPTO_SECRETKEYBYTES}); 
 }
 
 SecretKey
@@ -490,7 +496,7 @@ generateSecretKey(KeyType type, Seed const& seed)
 
         // Debugging statements
         // std::cout << "Secret Key (dilithium): " << toHexString(sk, CRYPTO_SECRETKEYBYTES) << std::endl;
-        std::cout << "Secret Key Size (dilithium): generateKeypair() " << CRYPTO_SECRETKEYBYTES << " bytes" << std::endl;
+        std::cout << "Secret Key Size (dilithium): generateSecretKey() " << CRYPTO_SECRETKEYBYTES << " bytes" << std::endl;
 
         // Securely erase the public key if not needed
         secure_erase(pk, CRYPTO_PUBLICKEYBYTES);
@@ -663,8 +669,9 @@ std::pair<PublicKey, SecretKey> randomKeyPair(KeyType type)
 
     }else if (type == KeyType::dilithium) {
         std::cout << "randomKeyPair using Dilithium" << std::endl;
-        auto const sk = randomDilithiumSecretKey();
-        auto const pk = derivePublicKey(KeyType::dilithium, sk, randomSeed());
+        auto const rs = randomSeed();
+        auto const sk = randomDilithiumSecretKey(rs);
+        auto const pk = derivePublicKey(KeyType::dilithium, sk, rs);
 
         // Debugging statements
         // std::cout << "Secret Key (dilithium) randomKeyPair(): " << toHexString(sk.data(), sk.size()) << std::endl;

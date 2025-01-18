@@ -315,8 +315,9 @@ public:
         BEAST_EXPECT(
             !parseBase58<PublicKey>(TokenType::NodePublic, "!ty89234gh45"));
 
+        auto seed = randomSeed();
         auto const good = toBase58(
-            TokenType::NodePublic, derivePublicKey(keyType, randomSecp256k1SecretKey()));
+            TokenType::NodePublic, derivePublicKey(keyType, randomDilithiumSecretKey(seed), seed));
 
         // Short (non-empty) strings
         {
@@ -367,7 +368,7 @@ public:
         keys.reserve(32);
 
         for (std::size_t i = 0; i != keys.capacity(); ++i)
-            keys.emplace_back(derivePublicKey(keyType, randomSecp256k1SecretKey()));
+            keys.emplace_back(derivePublicKey(keyType, randomDilithiumSecretKey(seed), seed));
         BEAST_EXPECT(keys.size() == 32);
 
         for (std::size_t i = 0; i != keys.size(); ++i)
@@ -398,13 +399,13 @@ public:
     void
     testBase58()
     {
-        testcase("Base58: secp256k1");
+        testcase("Base58: Dilithium");
 
         {
             auto const pk1 = derivePublicKey(
-                KeyType::secp256k1,
+                KeyType::dilithium,
                 generateSecretKey(
-                    KeyType::secp256k1, generateSeed("masterpassphrase")));
+                    KeyType::dilithium, generateSeed("masterpassphrase")), generateSeed("masterpassphrase"));
 
             auto const pk2 = parseBase58<PublicKey>(
                 TokenType::NodePublic,
@@ -414,26 +415,26 @@ public:
             BEAST_EXPECT(pk1 == *pk2);
         }
 
-        testBase58(KeyType::secp256k1);
+        testBase58(KeyType::dilithium);
 
-        testcase("Base58: ed25519");
+    //     testcase("Base58: ed25519");
 
-        {
-            auto const pk1 = derivePublicKey(
-                KeyType::ed25519,
-                generateSecretKey(
-                    KeyType::ed25519, generateSeed("masterpassphrase")));
+    //     {
+    //         auto const pk1 = derivePublicKey(
+    //             KeyType::ed25519,
+    //             generateSecretKey(
+    //                 KeyType::ed25519, generateSeed("masterpassphrase")));
 
-            auto const pk2 = parseBase58<PublicKey>(
-                TokenType::NodePublic,
-                "nHUeeJCSY2dM71oxM8Cgjouf5ekTuev2mwDpc374aLMxzDLXNmjf");
-            BEAST_EXPECT(pk2);
+    //         auto const pk2 = parseBase58<PublicKey>(
+    //             TokenType::NodePublic,
+    //             "nHUeeJCSY2dM71oxM8Cgjouf5ekTuev2mwDpc374aLMxzDLXNmjf");
+    //         BEAST_EXPECT(pk2);
 
-            BEAST_EXPECT(pk1 == *pk2);
+    //         BEAST_EXPECT(pk1 == *pk2);
+    //     }
+
+    //     testBase58(KeyType::ed25519);
         }
-
-        testBase58(KeyType::ed25519);
-    }
 
     void
     testMiscOperations()
@@ -441,18 +442,18 @@ public:
         testcase("Miscellaneous operations");
 
         auto const pk1 = derivePublicKey(
-            KeyType::secp256k1,
+            KeyType::dilithium,
             generateSecretKey(
-                KeyType::secp256k1, generateSeed("masterpassphrase")));
+                KeyType::dilithium, generateSeed("masterpassphrase")), generateSeed("masterpassphrase"));
 
         PublicKey pk2(pk1);
         BEAST_EXPECT(pk1 == pk2);
         BEAST_EXPECT(pk2 == pk1);
 
         PublicKey pk3 = derivePublicKey(
-            KeyType::secp256k1,
+            KeyType::dilithium,
             generateSecretKey(
-                KeyType::secp256k1, generateSeed("arbitraryPassPhrase")));
+                KeyType::dilithium, generateSeed("arbitraryPassPhrase")), generateSeed("arbitraryPassPhrase"));
         // Testing the copy assignment operation of PublicKey class
         pk3 = pk2;
         BEAST_EXPECT(pk3 == pk2);

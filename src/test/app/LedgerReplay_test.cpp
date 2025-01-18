@@ -221,9 +221,10 @@ public:
                     SecretKey sk = randomSecp256k1SecretKey();
                     return derivePublicKey(KeyType::secp256k1, sk);
                 } else if (keyType == KeyType::dilithium) {
-                    SecretKey sk = randomDilithiumSecretKey();
+                    auto const seed = randomSeed();
+                    SecretKey sk = randomDilithiumSecretKey(seed);
                     
-                    return derivePublicKey(KeyType::dilithium, sk);
+                    return derivePublicKey(KeyType::dilithium, sk, seed);
                 } else {
                     throw std::invalid_argument("TestPeer: unknown key type");
                 }

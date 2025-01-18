@@ -59,6 +59,7 @@ public:
         Account("alice");
         Account("alice", KeyType::secp256k1);
         Account("alice", KeyType::ed25519);
+        Account("alice", KeyType::dilithium);
         auto const gw = Account("gw");
         [](AccountID) {}(gw);
         auto const USD = gw["USD"];

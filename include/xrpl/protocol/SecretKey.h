@@ -88,7 +88,7 @@ toBase58(TokenType type, SecretKey const& sk)
 }
 
 /** Create a secret key using secure random numbers. 
-I have created two seperate functions for the different keytypes so both algorithms can coexist*/
+I have created three seperate functions for the different keytypes so that all algorithms can coexist*/
 // SecretKey
 // randomSecretKey();
 
@@ -96,7 +96,7 @@ SecretKey randomSecp256k1SecretKey();
 
 SecretKey randomEd25519SecretKey();
 
-SecretKey randomDilithiumSecretKey();
+SecretKey randomDilithiumSecretKey(Seed const& seed);
 
 /** Generate a new secret key deterministically. */
 SecretKey

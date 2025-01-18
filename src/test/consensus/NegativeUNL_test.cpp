@@ -672,7 +672,7 @@ struct NetworkHistory
     std::shared_ptr<STValidation>
     createSTVal(std::shared_ptr<Ledger const> const& ledger, NodeID const& v)
     {
-        static auto keyPair = randomKeyPair(KeyType::secp256k1);
+        static auto keyPair = randomKeyPair(KeyType::dilithium);
         return std::make_shared<STValidation>(
             env.app().timeKeeper().now(),
             keyPair.first,
@@ -775,13 +775,14 @@ class NegativeUNLVoteInternal_test : public beast::unit_test::suite
         NodeID myId(0xA0);
         NegativeUNLVote vote(myId, env.journal);
 
+        auto seed = randomSeed();
         // one add, one remove
         auto txSet = std::make_shared<SHAMap>(
             SHAMapType::TRANSACTION, env.app().getNodeFamily());
         PublicKey toDisableKey(
-            derivePublicKey(KeyType::ed25519, randomEd25519SecretKey()));
+            derivePublicKey(KeyType::dilithium, randomDilithiumSecretKey(seed), seed));
         PublicKey toReEnableKey(
-            derivePublicKey(KeyType::ed25519, randomEd25519SecretKey()));
+            derivePublicKey(KeyType::dilithium, randomDilithiumSecretKey(seed), seed));
         LedgerIndex seq(1234);
         BEAST_EXPECT(countTx(txSet) == 0);
         vote.addTx(seq, toDisableKey, NegativeUNLVote::ToDisable, txSet);
@@ -1754,9 +1755,9 @@ class NegativeUNLVoteNewValidator_test : public beast::unit_test::suite
                     0,
                     [&](NegativeUNLVote& vote) {
                         auto extra_key_1 =
-                            randomKeyPair(KeyType::ed25519).first;
+                            randomKeyPair(KeyType::dilithium).first;
                         auto extra_key_2 =
-                            randomKeyPair(KeyType::ed25519).first;
+                            randomKeyPair(KeyType::dilithium).first;
                         history.UNLKeySet.insert(extra_key_1);
                         history.UNLKeySet.insert(extra_key_2);
                         hash_set<NodeID> nowTrusted;
@@ -1790,9 +1791,9 @@ class NegativeUNLVoteNewValidator_test : public beast::unit_test::suite
                     1,
                     [&](NegativeUNLVote& vote) {
                         auto extra_key_1 =
-                            randomKeyPair(KeyType::ed25519).first;
+                            randomKeyPair(KeyType::dilithium).first;
                         auto extra_key_2 =
-                            randomKeyPair(KeyType::ed25519).first;
+                            randomKeyPair(KeyType::dilithium).first;
                         history.UNLKeySet.insert(extra_key_1);
                         history.UNLKeySet.insert(extra_key_2);
                         hash_set<NodeID> nowTrusted;
@@ -1981,7 +1982,7 @@ std::vector<PublicKey>
 createPublicKeys(std::size_t n)
 {
     std::vector<PublicKey> keys;
-    std::size_t ss = 33;
+    std::size_t ss = 1312;
     std::vector<uint8_t> data(ss, 0);
     data[0] = 0xED;
     for (int i = 0; i < n; ++i)
