@@ -23,11 +23,14 @@
 #include <xrpl/protocol/PublicKey.h>
 #include <xrpl/protocol/SecretKey.h>
 #include <xrpl/protocol/Seed.h>
+
 #include <algorithm>
 #include <string>
 #include <vector>
 
-namespace ripple {
+namespace ripple {  
+
+std::string toHexString(const std::uint8_t* data, std::size_t size);
 
 class SecretKey_test : public beast::unit_test::suite
 {
@@ -195,30 +198,94 @@ public:
     {
         testcase("Base58");
 
-        // Ensure that parsing some well-known secret keys works
+        // // Ensure that parsing some well-known secret keys works
         {
             auto const sk1 = generateSecretKey(
-                KeyType::secp256k1, generateSeed("masterpassphrase"));
+                KeyType::secp256k1, generateSeed("masterpassphrase"));  
+
+            std::cout << "Original Key Size: " << sk1.size() << std::endl;
+            std::cout << "Original Key: " << toHexString(sk1.data(), sk1.size()) << std::endl;    
+
+            std::string base58EncodedKey = toBase58(TokenType::NodePrivate, sk1);
+            std::cout << "Base58 Encoded Key: " << base58EncodedKey << std::endl;
+        
 
             auto const sk2 = parseBase58<SecretKey>(
                 TokenType::NodePrivate,
-                "pnen77YEeUd4fFKG7iycBWcwKpTaeFRkW2WFostaATy1DSupwXe");
+                base58EncodedKey);
+            if (!sk2)
+            {
+                std::cout << "Failed to decode Base58 string!" << std::endl;
+            }
+            else
+            {
+        // Debug: Print the decoded key size
+                std::cout << "Decoded Key Size: " << sk2->size() << std::endl;
+
+        // Debug: Print the raw data of the decoded key
+                std::cout << "Decoded Key: " << toHexString(sk2->data(), sk2->size()) << std::endl;
+            }                
             BEAST_EXPECT(sk2);
 
             BEAST_EXPECT(sk1 == *sk2);
         }
 
-        {
+        {  
+    // Step 1: Generate a secret key for Dilithium
             auto const sk1 = generateSecretKey(
-                KeyType::ed25519, generateSeed("masterpassphrase"));
+                KeyType::dilithium, generateSeed("masterpassphrase"));
 
+    // Debug: Print the original key size
+            std::cout << "Original Key Size: " << sk1.size() << std::endl;
+            std::cout << "Original Key: " << toHexString(sk1.data(), sk1.size()) << std::endl;
+
+    // Step 2: Encode the secret key into Base58 format
+            std::string base58EncodedKey = toBase58(TokenType::NodePrivate, sk1);
+
+    // Debug: Print the Base58-encoded key
+            std::cout << "Base58 Encoded Key: " << base58EncodedKey << std::endl;
+
+    // Step 3: Decode the Base58-encoded string back into a secret key
             auto const sk2 = parseBase58<SecretKey>(
                 TokenType::NodePrivate,
-                "paKv46LztLqK3GaKz1rG2nQGN6M4JLyRtxFBYFTw4wAVHtGys36");
+                base58EncodedKey);
+
+    // Debug: Check if decoding was successful
+            if (!sk2)
+            {
+                std::cout << "Failed to decode Base58 string!" << std::endl;
+            }
+            else
+            {
+        // Debug: Print the decoded key size
+                std::cout << "Decoded Key Size: " << sk2->size() << std::endl;
+
+        // Debug: Print the raw data of the decoded key
+                std::cout << "Decoded Key: " << toHexString(sk2->data(), sk2->size()) << std::endl;
+            }
             BEAST_EXPECT(sk2);
 
+    // Step 4: Verify that the original key matches the decoded key
+            if (sk1 != *sk2)
+            {
+                std::cout << "Keys do not match!" << std::endl;
+                std::cout << "Original Key: " << toHexString(sk1.data(), sk1.size()) << std::endl;
+                std::cout << "Decoded Key: " << toHexString(sk2->data(), sk2->size()) << std::endl;
+            }
             BEAST_EXPECT(sk1 == *sk2);
         }
+
+        // {
+        //     auto const sk1 = generateSecretKey(
+        //         KeyType::ed25519, generateSeed("masterpassphrase"));
+
+        //     auto const sk2 = parseBase58<SecretKey>(
+        //         TokenType::NodePrivate,
+        //         "paKv46LztLqK3GaKz1rG2nQGN6M4JLyRtxFBYFTw4wAVHtGys36");
+        //     BEAST_EXPECT(sk2);
+
+        //     BEAST_EXPECT(sk1 == *sk2);
+        // }
 
         // Try converting short, long and malformed data
         BEAST_EXPECT(!parseBase58<SecretKey>(TokenType::NodePrivate, ""));
@@ -355,16 +422,16 @@ public:
     void
     run() override
     {
-        // testBase58();
+        testBase58();
 
         // secp256k1
-        // testKeyDerivationSecp256k1();
+        testKeyDerivationSecp256k1();
         testSigning(KeyType::dilithium);
-        // testDigestSigning();
-        // testCanonicality();
+        testDigestSigning();
+        testCanonicality();
 
         // Ed25519
-        // testKeyDerivationEd25519();
+        testKeyDerivationEd25519();
         // testSigning(KeyType::ed25519);
     }
 

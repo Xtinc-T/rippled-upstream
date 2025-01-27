@@ -58,7 +58,7 @@ public:
 
         // Give alice a regular key so she can legally set and clear
         // her asfDisableMaster flag.
-        Account const alie{"alie", KeyType::secp256k1};
+        Account const alie{"alie", KeyType::dilithium};
         env(regkey(alice, alie));
         env.close();
 
@@ -255,7 +255,7 @@ public:
         env.fund(XRP(10000), alice);
         auto jt = noop(alice);
 
-        auto const rkp = randomKeyPair(KeyType::ed25519);
+        auto const rkp = randomKeyPair(KeyType::dilithium);
         jt[sfMessageKey.fieldName] = strHex(rkp.first.slice());
         env(jt);
         BEAST_EXPECT(

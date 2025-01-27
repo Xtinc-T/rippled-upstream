@@ -49,8 +49,9 @@ public:
 
     PublicKey
     randomNode()
-    {
-        return derivePublicKey(KeyType::secp256k1, randomSecp256k1SecretKey());
+    {   
+        auto const seed = randomSeed();
+        return derivePublicKey(KeyType::dilithium, randomDilithiumSecretKey(seed), seed);
     }
 
     void

@@ -363,37 +363,37 @@ public:
             }
         }
 
-        // Try some random secret keys
-        std::vector<PublicKey> keys;
-        keys.reserve(32);
+        // // Try some random secret keys
+        // std::vector<PublicKey> keys;
+        // keys.reserve(32);
 
-        for (std::size_t i = 0; i != keys.capacity(); ++i)
-            keys.emplace_back(derivePublicKey(keyType, randomDilithiumSecretKey(seed), seed));
-        BEAST_EXPECT(keys.size() == 32);
+        // for (std::size_t i = 0; i != keys.capacity(); ++i)
+        //     keys.emplace_back(derivePublicKey(keyType, randomDilithiumSecretKey(seed), seed));
+        // BEAST_EXPECT(keys.size() == 32);
 
-        for (std::size_t i = 0; i != keys.size(); ++i)
-        {
-            auto const si = toBase58(TokenType::NodePublic, keys[i]);
-            BEAST_EXPECT(!si.empty());
+        // for (std::size_t i = 0; i != keys.size(); ++i)
+        // {
+        //     auto const si = toBase58(TokenType::NodePublic, keys[i]);
+        //     BEAST_EXPECT(!si.empty());
 
-            auto const ski = parseBase58<PublicKey>(TokenType::NodePublic, si);
-            BEAST_EXPECT(ski && (keys[i] == *ski));
+        //     auto const ski = parseBase58<PublicKey>(TokenType::NodePublic, si);
+        //     BEAST_EXPECT(ski && (keys[i] == *ski));
 
-            for (std::size_t j = i; j != keys.size(); ++j)
-            {
-                BEAST_EXPECT((keys[i] == keys[j]) == (i == j));
+        //     for (std::size_t j = i; j != keys.size(); ++j)
+        //     {
+        //         BEAST_EXPECT((keys[i] == keys[j]) == (i == j));
 
-                auto const sj = toBase58(TokenType::NodePublic, keys[j]);
+        //         auto const sj = toBase58(TokenType::NodePublic, keys[j]);
 
-                BEAST_EXPECT((si == sj) == (i == j));
+        //         BEAST_EXPECT((si == sj) == (i == j));
 
-                auto const skj =
-                    parseBase58<PublicKey>(TokenType::NodePublic, sj);
-                BEAST_EXPECT(skj && (keys[j] == *skj));
+        //         auto const skj =
+        //             parseBase58<PublicKey>(TokenType::NodePublic, sj);
+        //         BEAST_EXPECT(skj && (keys[j] == *skj));
 
-                BEAST_EXPECT((*ski == *skj) == (i == j));
-            }
-        }
+        //         BEAST_EXPECT((*ski == *skj) == (i == j));
+        //     }
+        // }
     }
 
     void

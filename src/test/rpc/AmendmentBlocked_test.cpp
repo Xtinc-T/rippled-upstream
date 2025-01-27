@@ -40,7 +40,7 @@ class AmendmentBlocked_test : public beast::unit_test::suite
         auto const USD = gw["USD"];
         auto const alice = Account{"alice"};
         auto const bob = Account{"bob"};
-        Account const ali{"ali", KeyType::secp256k1};
+        Account const ali{"ali", KeyType::dilithium};
         env.fund(XRP(10000), alice, bob, gw);
         env.memoize(ali);
         // This close() ensures that all the accounts get created and their

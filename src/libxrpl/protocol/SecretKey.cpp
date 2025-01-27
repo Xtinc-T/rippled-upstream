@@ -323,12 +323,6 @@ Buffer signDigest(PublicKey const& pk, SecretKey const& sk, uint256 const& diges
         size_t dilithium_siglen;
         crypto_sign_signature(dilithium_sig, &dilithium_siglen, digest.data(), digest.size(), sk.data());
         std::cout << "Signing Digest done with digest and Dilithium Signature Length: " << dilithium_siglen << std::endl;
-        
-        // Verify the signature
-        // if (crypto_sign_verify(dilithium_sig, dilithium_siglen, digest.data(), digest.size(), pk.data())) {
-        //     std::cerr << "Dilithium Signature Verification Failed" << std::endl;
-        //     LogicError("signDigest: Dilithium Signature Verification Failed");
-        // }
         return Buffer{dilithium_sig, dilithium_siglen};
     }
     LogicError("signDigest: unknown key type");
@@ -389,17 +383,7 @@ Buffer sign(PublicKey const& pk, SecretKey const& sk, Slice const& m)
             uint8_t dilithium_sig[CRYPTO_BYTES];
             size_t dilithium_siglen;
             crypto_sign_signature(dilithium_sig, &dilithium_siglen, m.data(), m.size(), sk.data());
-
-            // Debugging statements
-            // std::cout << "Signature Dilthium: " << toHexString(dilithium_sig, dilithium_siglen) << std::endl;
             std::cout << "Signature Length (Dilithium): " << dilithium_siglen << " bytes" << std::endl;
-
-            // Verify the Signature
-            // int verify_result = crypto_sign_verify(dilithium_sig, dilithium_siglen, m.data(), m.size(), pk.data());
-            // if (verify_result != 0) {
-            //     std::cerr << "Dilithium signature verification failed with error code: " << verify_result << std::endl;
-            //     LogicError("sign: Dilithium Signature Verification failed");
-            // }
             return Buffer{dilithium_sig, dilithium_siglen};
         }
         default:
@@ -442,11 +426,8 @@ SecretKey randomDilithiumSecretKey(Seed const& seed) {
     {
         throw std::runtime_error("randomDilithiumSecretKey(): Key generation failed");
     }
-        
-    // std::cout << "Secret Key: " << toHexString(sk, CRYPTO_SECRETKEYBYTES) << std::endl;
     std::cout << "Length of Secret Key: (dilithium) " << CRYPTO_SECRETKEYBYTES << " bytes" << std::endl;
     secure_erase(pk, CRYPTO_PUBLICKEYBYTES);
-
     return SecretKey(Slice{sk, CRYPTO_SECRETKEYBYTES}); 
 }
 
@@ -493,9 +474,6 @@ generateSecretKey(KeyType type, Seed const& seed)
         }
 
         SecretKey sk{Slice{sk_temp, CRYPTO_SECRETKEYBYTES}};
-
-        // Debugging statements
-        // std::cout << "Secret Key (dilithium): " << toHexString(sk, CRYPTO_SECRETKEYBYTES) << std::endl;
         std::cout << "Secret Key Size (dilithium): generateSecretKey() " << CRYPTO_SECRETKEYBYTES << " bytes" << std::endl;
 
         // Securely erase the public key if not needed
@@ -579,10 +557,6 @@ PublicKey derivePublicKey(KeyType type, SecretKey const& sk, Seed const& seed)
     if (pqcrystals_dilithium2_ref_keypair_seed(pk, sk_buffer, seed.data()) != 0) {
         throw std::runtime_error("derivePublicKey: Dilithium public key derivation failed");
     }
-
-    // Debugging statements after key derivation
-    // std::cout << "Public Key (Dilithium): " << toHexString(pk, CRYPTO_PUBLICKEYBYTES) << std::endl;
-    // std::cout << "Public Key (Dilithium): " << toHexString(pk, CRYPTO_PUBLICKEYBYTES) << std::endl;
     std::cout << "derivePublicKey Length (Dilithium): " << CRYPTO_PUBLICKEYBYTES << " bytes" << std::endl;
 
     return PublicKey{Slice{pk, CRYPTO_PUBLICKEYBYTES}};
@@ -634,13 +608,6 @@ generateKeyPair(KeyType type, Seed const& seed)
     }
 }
 
-// std::pair<PublicKey, SecretKey>
-// randomKeyPair(KeyType type)
-// {
-//     auto const sk = randomSecretKey();
-//     return {derivePublicKey(type, sk), sk};
-// }
-
 // Added randomKeyPair for dilithium as well along with secp256k1.
 std::pair<PublicKey, SecretKey> randomKeyPair(KeyType type)
 {
@@ -673,9 +640,6 @@ std::pair<PublicKey, SecretKey> randomKeyPair(KeyType type)
         auto const sk = randomDilithiumSecretKey(rs);
         auto const pk = derivePublicKey(KeyType::dilithium, sk, rs);
 
-        // Debugging statements
-        // std::cout << "Secret Key (dilithium) randomKeyPair(): " << toHexString(sk.data(), sk.size()) << std::endl;
-        // std::cout << "Public Key (dilithium) randomKeyPair(): " << toHexString(pk.data(), pk.size()) << std::endl;
         std::cout << "Secret Key Length (dilithium) randomKeyPair(): " << sk.size() << " bytes" << std::endl;
         std::cout << "Public Key Length (dilithium) randomKeyPair(): " << pk.size() << " bytes" << std::endl;
 
