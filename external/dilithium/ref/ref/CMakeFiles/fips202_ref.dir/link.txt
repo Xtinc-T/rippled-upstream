@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc output/lib/libfips202_ref.a CMakeFiles/fips202_ref.dir/fips202.c.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib output/lib/libfips202_ref.a
