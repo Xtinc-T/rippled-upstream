@@ -184,8 +184,6 @@ ed25519Canonical(Slice const& sig)
 
 // Constructor from Slice
 PublicKey::PublicKey(Slice const& slice) {
-    std::cout << "PublicKey constructor called." << std::endl;
-    std::cout << "Input slice size: " << slice.size() << std::endl;
 
     // Determine the key type from the slice
     auto keyType = publicKeyType(slice);
@@ -205,14 +203,11 @@ PublicKey::PublicKey(Slice const& slice) {
             break;
         case KeyType::dilithium:
             expectedSize = CRYPTO_PUBLICKEYBYTES; // Dilithium public keys
-            std::cout << "Verification of message successful using dilithium" << std::endl;
-            break; // Add this break statement to prevent fallthrough
+            break; 
         default:
-            std::cout << "Unknown key type detected." << std::endl;
             throw std::logic_error("PublicKey::PublicKey - Unknown key type");
     }
 
-    std::cout << "Expected public key size: " << expectedSize << std::endl;
 
     // Validate the input slice size
     if (slice.size() < expectedSize) {
@@ -230,22 +225,6 @@ PublicKey::PublicKey(Slice const& slice) {
     // Copy the key data into the buffer
     std::memcpy(buf_.data(), slice.data(), keySize_);
 }
-
-// // Copy Constructor
-// PublicKey::PublicKey(PublicKey const& other)
-//     : buf_(other.buf_), keySize_(other.keySize_) {
-//     std::cout << "PublicKey copy constructor called." << std::endl;
-// }
-
-// // Copy Assignment Operator
-// PublicKey& PublicKey::operator=(PublicKey const& other) {
-//     if (this != &other) {
-//         std::cout << "PublicKey copy assignment operator called." << std::endl;
-//         buf_ = other.buf_; // Copy the buffer
-//         keySize_ = other.keySize_; // Copy the key size
-//     }
-//     return *this;
-// }
 
 //------------------------------------------------------------------------------
 
@@ -287,7 +266,6 @@ verifyDigest(
     {
         case KeyType::secp256k1:
         {
-            std::cout << "Verifying digest, public key type: secp256k1" << std::endl;
             auto const canonicality = ecdsaCanonicality(sig);
             if (!canonicality)
                 return false;
@@ -330,7 +308,6 @@ verifyDigest(
         }
         case KeyType::ed25519:
         {
-            std::cout << "Verifying digest, public key type: ed25519" << std::endl;
             if (!ed25519Canonical(sig))
                 return false;
 
@@ -339,7 +316,6 @@ verifyDigest(
         }
         case KeyType::dilithium:
         {
-            std::cout << "Verifying digest, public key type: Dilithium" << std::endl;
             return crypto_sign_verify(
                        sig.data(), sig.size(), digest.data(), digest.size(), publicKey.data()) == 0;
         }
@@ -367,13 +343,11 @@ verify(
     {
         case KeyType::secp256k1:
         {
-            std::cout << "Verifying message, public key type: secp256k1" << std::endl;
             return verifyDigest(
                 publicKey, sha512Half(m), sig, mustBeFullyCanonical);
         }
         case KeyType::ed25519:
         {
-            std::cout << "Verifying message, public key type: ed25519" << std::endl;
             if (!ed25519Canonical(sig))
                 return false;
 
@@ -386,11 +360,8 @@ verify(
         }
         case KeyType::dilithium:
         {
-            std::cout << "Verifying message, public key type: Dilithium" << std::endl;
             return crypto_sign_verify(
-                       sig.data(), sig.size(), m.data(), m.size(), publicKey.data()) == 0;
-            std::cout << "Verification of message succesfull using dilithium" << std::endl;
-            
+                       sig.data(), sig.size(), m.data(), m.size(), publicKey.data()) == 0;         
         }
         default:
             LogicError("verify: invalid public key type");
